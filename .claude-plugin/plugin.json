@@ -1,12 +1,14 @@
 {
   "name": "superfaktura",
   "description": "Drive SuperFaktura invoicing from Claude Code via the sf CLI",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": {
     "name": "Filip Seman",
     "url": "https://github.com/xseman"
   },
   "homepage": "https://github.com/xseman/superfaktura-cli",
   "license": "MIT",
-  "skills": ["../skills/superfaktura"]
+  "skills": [
+    "../skills/superfaktura"
+  ]
 }
