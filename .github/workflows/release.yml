@@ -1,0 +1,104 @@
+name: Release
+
+# release-please owns the version: it opens a release PR from the conventional
+# commits on main, and merging that PR creates the tag, the GitHub release and
+# the changelog. The build job then compiles the binaries inline — there is no
+# separate release tool or config — and uploads them to that release.
+#
+# A run that tagged but failed to upload is fixed with "Re-run failed jobs":
+# the re-run keeps release-please's outputs, so there is no manual tag path.
+
+on:
+    push:
+        branches: [main]
+
+permissions:
+    contents: write
+    pull-requests: write
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        outputs:
+            release_created: ${{ steps.release.outputs.release_created }}
+            tag_name: ${{ steps.release.outputs.tag_name }}
+        steps:
+            # A PAT, not GITHUB_TOKEN: releases made by GITHUB_TOKEN do not
+            # trigger workflows, and the release PR needs CI to run on it.
+            - uses: googleapis/release-please-action@v4
+              id: release
+              with:
+                  token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+                  config-file: .github/.release-config.json
+                  manifest-file: .github/.release-manifest.json
+
+    build:
+        needs: release-please
+        if: needs.release-please.outputs.release_created == 'true'
+        runs-on: ubuntu-latest
+        env:
+            TAG: ${{ needs.release-please.outputs.tag_name }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # The tag, not main: the release must build what it tagged.
+                  ref: ${{ needs.release-please.outputs.tag_name }}
+
+            - uses: actions/setup-go@v5
+              with:
+                  go-version: "1.24"
+
+            # CGO is off, so one runner cross-compiles everything. The asset
+            # name sf-<os>-<arch> is what scripts/install.sh downloads.
+            - name: Build binaries
+              run: |
+                  mkdir -p artifacts
+                  for target in linux/amd64 linux/arm64 darwin/amd64 darwin/arm64 windows/amd64 windows/arm64; do
+                      GOOS=${target%/*}
+                      GOARCH=${target#*/}
+                      EXT=""
+                      [ "$GOOS" = windows ] && EXT=".exe"
+                      CGO_ENABLED=0 GOOS=$GOOS GOARCH=$GOARCH go build -trimpath \
+                          -ldflags "-s -w -X main.version=${TAG#v}" \
+                          -o "artifacts/sf-$GOOS-$GOARCH$EXT" ./cmd/sf
+                  done
+
+            - name: Package deb and rpm
+              run: |
+                  go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+                  VERSION_NUM=${TAG#v}
+                  for GOARCH in amd64 arm64; do
+                  cat > nfpm.yaml << NFPM
+                  name: superfaktura-cli
+                  arch: ${GOARCH}
+                  platform: linux
+                  version: ${VERSION_NUM}
+                  section: utils
+                  priority: optional
+                  maintainer: Filip Seman <filip.seman@pm.me>
+                  description: Command-line interface for the SuperFaktura API.
+                  homepage: https://github.com/xseman/superfaktura-cli
+                  license: MIT
+
+                  contents:
+                    - src: artifacts/sf-linux-${GOARCH}
+                      dst: /usr/bin/sf
+                      file_info:
+                        mode: 0755
+
+                    - src: LICENSE
+                      dst: /usr/share/doc/superfaktura-cli/LICENSE
+                      file_info:
+                        mode: 0644
+                  NFPM
+                  nfpm package --packager deb --target artifacts/
+                  nfpm package --packager rpm --target artifacts/
+                  done
+
+            - name: Upload release assets
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  cd artifacts
+                  sha256sum * > CHECKSUMS.txt
+                  gh release upload "$TAG" * --clobber
