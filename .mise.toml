@@ -1,0 +1,7 @@
+[tools]
+go = "1.24"
+# golangci-lint must be built with a Go at least as new as the installed
+# toolchain, or it panics type-checking the standard library. A 1.25 build
+# cannot lint against a 1.26 stdlib even when the module itself targets 1.24.
+golangci-lint = "latest"
+goreleaser = "latest"

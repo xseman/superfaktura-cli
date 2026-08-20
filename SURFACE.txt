@@ -1,0 +1,596 @@
+ALIAS sf auth ls -> list
+ALIAS sf bank-account create -> add
+ALIAS sf bank-account edit -> update
+ALIAS sf bank-account ls -> list
+ALIAS sf bank-account rm -> delete
+ALIAS sf browse -> ui
+ALIAS sf cash-register item create -> add
+ALIAS sf cash-register item ls -> list
+ALIAS sf cash-register item rm -> delete
+ALIAS sf cash-register ls -> list
+ALIAS sf cash-register show -> view
+ALIAS sf client add -> create
+ALIAS sf client contact ls -> list
+ALIAS sf client contact rm -> delete
+ALIAS sf client ls -> list
+ALIAS sf client rm -> delete
+ALIAS sf client show -> view
+ALIAS sf company ls -> list
+ALIAS sf expense create -> add
+ALIAS sf expense item rm -> delete
+ALIAS sf expense ls -> list
+ALIAS sf expense payment rm -> delete
+ALIAS sf expense related rm -> delete
+ALIAS sf expense rm -> delete
+ALIAS sf expense show -> view
+ALIAS sf export add -> create
+ALIAS sf invoice add -> create
+ALIAS sf invoice item rm -> delete
+ALIAS sf invoice ls -> list
+ALIAS sf invoice payment rm -> delete
+ALIAS sf invoice related rm -> delete
+ALIAS sf invoice rm -> delete
+ALIAS sf invoice show -> view
+ALIAS sf stock create -> add
+ALIAS sf stock ls -> list
+ALIAS sf stock movement ls -> list
+ALIAS sf stock rm -> delete
+ALIAS sf stock show -> view
+ALIAS sf tag create -> add
+ALIAS sf tag ls -> list
+ALIAS sf tag rm -> delete
+ARG sf activity 00 <type>
+ARG sf activity 01 <id>
+ARG sf auth login 00 [profile]
+ARG sf auth logout 00 [profile]
+ARG sf auth switch 00 <profile>
+ARG sf bank-account delete 00 <id>
+ARG sf bank-account update 00 <id>
+ARG sf cash-register item delete 00 <id>
+ARG sf cash-register item list 00 <cash-register-id>
+ARG sf cash-register item receipt 00 <id>
+ARG sf cash-register view 00 <id>
+ARG sf client contact add 00 <client-id>
+ARG sf client contact delete 00 <contact-id>
+ARG sf client contact list 00 <client-id>
+ARG sf client delete 00 <id>
+ARG sf client edit 00 <id>
+ARG sf client view 00 <id>
+ARG sf commands 00 [filter]
+ARG sf expense attachment download 00 <expense-id>
+ARG sf expense attachment download 01 <attachment-id>
+ARG sf expense delete 00 <id>
+ARG sf expense edit 00 <id>
+ARG sf expense item delete 00 [item-id]...
+ARG sf expense pay 00 <id>
+ARG sf expense payment delete 00 <payment-id>
+ARG sf expense related delete 00 <relation-id>
+ARG sf expense view 00 <id>
+ARG sf export download 00 <id>
+ARG sf export status 00 <id>
+ARG sf invoice delete 00 <id>
+ARG sf invoice edit 00 <id>
+ARG sf invoice item delete 00 <item-id>
+ARG sf invoice language 00 <id>
+ARG sf invoice language 01 <lang>
+ARG sf invoice mark-sent 00 <id>
+ARG sf invoice pay 00 <id>
+ARG sf invoice payment delete 00 <payment-id>
+ARG sf invoice pdf 00 <id>
+ARG sf invoice post 00 <id>
+ARG sf invoice receipt 00 <id>
+ARG sf invoice recover 00 <checksum>
+ARG sf invoice related delete 00 <relation-id>
+ARG sf invoice send 00 <id>
+ARG sf invoice view 00 <id>...
+ARG sf invoice will-not-be-paid 00 <id>
+ARG sf stock delete 00 <id>
+ARG sf stock edit 00 <id>
+ARG sf stock movement list 00 <item-id>
+ARG sf stock view 00 <id>
+ARG sf tag add 00 <name>
+ARG sf tag delete 00 <id>
+ARG sf tag edit 00 <id>
+ARG sf values 00 [list]
+CMD sf
+CMD sf activity
+CMD sf auth
+CMD sf auth list
+CMD sf auth login
+CMD sf auth logout
+CMD sf auth status
+CMD sf auth switch
+CMD sf bank-account
+CMD sf bank-account add
+CMD sf bank-account delete
+CMD sf bank-account list
+CMD sf bank-account update
+CMD sf bank-moves
+CMD sf cache
+CMD sf cache clear
+CMD sf cache path
+CMD sf cash-register
+CMD sf cash-register item
+CMD sf cash-register item add
+CMD sf cash-register item delete
+CMD sf cash-register item list
+CMD sf cash-register item receipt
+CMD sf cash-register list
+CMD sf cash-register view
+CMD sf client
+CMD sf client contact
+CMD sf client contact add
+CMD sf client contact delete
+CMD sf client contact list
+CMD sf client create
+CMD sf client delete
+CMD sf client edit
+CMD sf client list
+CMD sf client view
+CMD sf commands
+CMD sf company
+CMD sf company data
+CMD sf company list
+CMD sf doctor
+CMD sf expense
+CMD sf expense add
+CMD sf expense attachment
+CMD sf expense attachment download
+CMD sf expense categories
+CMD sf expense delete
+CMD sf expense edit
+CMD sf expense item
+CMD sf expense item add
+CMD sf expense item delete
+CMD sf expense item list
+CMD sf expense list
+CMD sf expense pay
+CMD sf expense payment
+CMD sf expense payment delete
+CMD sf expense related
+CMD sf expense related add
+CMD sf expense related delete
+CMD sf expense view
+CMD sf export
+CMD sf export create
+CMD sf export download
+CMD sf export status
+CMD sf invoice
+CMD sf invoice create
+CMD sf invoice delete
+CMD sf invoice edit
+CMD sf invoice item
+CMD sf invoice item add
+CMD sf invoice item delete
+CMD sf invoice item list
+CMD sf invoice language
+CMD sf invoice list
+CMD sf invoice mark-sent
+CMD sf invoice pay
+CMD sf invoice payment
+CMD sf invoice payment delete
+CMD sf invoice pdf
+CMD sf invoice post
+CMD sf invoice receipt
+CMD sf invoice recover
+CMD sf invoice related
+CMD sf invoice related add
+CMD sf invoice related delete
+CMD sf invoice send
+CMD sf invoice view
+CMD sf invoice will-not-be-paid
+CMD sf limits
+CMD sf skill
+CMD sf skill install
+CMD sf skill show
+CMD sf sms
+CMD sf stock
+CMD sf stock add
+CMD sf stock delete
+CMD sf stock edit
+CMD sf stock list
+CMD sf stock movement
+CMD sf stock movement add
+CMD sf stock movement list
+CMD sf stock view
+CMD sf tag
+CMD sf tag add
+CMD sf tag delete
+CMD sf tag edit
+CMD sf tag list
+CMD sf ui
+CMD sf values
+CMD sf version
+FLAG sf --agent type=bool
+FLAG sf --api-url type=string
+FLAG sf --company type=string
+FLAG sf --count type=bool
+FLAG sf --dry-run type=bool
+FLAG sf --ids-only type=bool
+FLAG sf --jq type=string
+FLAG sf --json type=bool
+FLAG sf --module type=string
+FLAG sf --no-cache type=bool
+FLAG sf --profile type=string
+FLAG sf --quiet type=bool
+FLAG sf --styled type=bool
+FLAG sf --verbose type=bool
+FLAG sf activity --limit type=string
+FLAG sf auth login --api-key type=string
+FLAG sf auth login --default type=bool
+FLAG sf auth login --email type=string
+FLAG sf bank-account add --account type=string
+FLAG sf bank-account add --bank-code type=string
+FLAG sf bank-account add --bank-name type=string
+FLAG sf bank-account add --country-id type=string
+FLAG sf bank-account add --currency type=string
+FLAG sf bank-account add --data type=string
+FLAG sf bank-account add --default type=bool
+FLAG sf bank-account add --iban type=string
+FLAG sf bank-account add --show type=bool
+FLAG sf bank-account add --swift type=string
+FLAG sf bank-account update --account type=string
+FLAG sf bank-account update --bank-code type=string
+FLAG sf bank-account update --bank-name type=string
+FLAG sf bank-account update --country-id type=string
+FLAG sf bank-account update --currency type=string
+FLAG sf bank-account update --data type=string
+FLAG sf bank-account update --default type=bool
+FLAG sf bank-account update --iban type=string
+FLAG sf bank-account update --show type=bool
+FLAG sf bank-account update --swift type=string
+FLAG sf bank-moves --all type=bool
+FLAG sf bank-moves --date type=string
+FLAG sf bank-moves --direction type=string
+FLAG sf bank-moves --filter type=stringArray
+FLAG sf bank-moves --page type=int
+FLAG sf bank-moves --per-page type=int
+FLAG sf bank-moves --search type=string
+FLAG sf bank-moves --since type=string
+FLAG sf bank-moves --sort type=string
+FLAG sf bank-moves --until type=string
+FLAG sf cash-register item add --amount type=string
+FLAG sf cash-register item add --data type=string
+FLAG sf cash-register item add --date type=string
+FLAG sf cash-register item add --name type=string
+FLAG sf cash-register item add --register type=string
+FLAG sf cash-register item add --type type=string
+FLAG sf cash-register item list --all type=bool
+FLAG sf cash-register item list --direction type=string
+FLAG sf cash-register item list --filter type=stringArray
+FLAG sf cash-register item list --page type=int
+FLAG sf cash-register item list --per-page type=int
+FLAG sf cash-register item list --search type=string
+FLAG sf cash-register item list --sort type=string
+FLAG sf cash-register item receipt --output type=string
+FLAG sf client contact add --data type=string
+FLAG sf client contact add --email type=string
+FLAG sf client contact add --name type=string
+FLAG sf client contact add --phone type=string
+FLAG sf client create --address type=string
+FLAG sf client create --city type=string
+FLAG sf client create --comment type=string
+FLAG sf client create --country-id type=string
+FLAG sf client create --data type=string
+FLAG sf client create --dic type=string
+FLAG sf client create --due-days type=string
+FLAG sf client create --email type=string
+FLAG sf client create --iban type=string
+FLAG sf client create --ic-dph type=string
+FLAG sf client create --ico type=string
+FLAG sf client create --name type=string
+FLAG sf client create --phone type=string
+FLAG sf client create --tag type=stringArray
+FLAG sf client create --zip type=string
+FLAG sf client edit --address type=string
+FLAG sf client edit --city type=string
+FLAG sf client edit --comment type=string
+FLAG sf client edit --country-id type=string
+FLAG sf client edit --data type=string
+FLAG sf client edit --dic type=string
+FLAG sf client edit --due-days type=string
+FLAG sf client edit --email type=string
+FLAG sf client edit --iban type=string
+FLAG sf client edit --ic-dph type=string
+FLAG sf client edit --ico type=string
+FLAG sf client edit --name type=string
+FLAG sf client edit --phone type=string
+FLAG sf client edit --tag type=stringArray
+FLAG sf client edit --zip type=string
+FLAG sf client list --all type=bool
+FLAG sf client list --direction type=string
+FLAG sf client list --filter type=stringArray
+FLAG sf client list --ico type=string
+FLAG sf client list --page type=int
+FLAG sf client list --per-page type=int
+FLAG sf client list --search type=string
+FLAG sf client list --sort type=string
+FLAG sf client list --tag type=string
+FLAG sf company data --all type=bool
+FLAG sf doctor --live type=bool
+FLAG sf expense add --amount type=string
+FLAG sf expense add --attachment type=string
+FLAG sf expense add --category type=string
+FLAG sf expense add --client type=string
+FLAG sf expense add --comment type=string
+FLAG sf expense add --created type=string
+FLAG sf expense add --currency type=string
+FLAG sf expense add --data type=string
+FLAG sf expense add --document-no type=string
+FLAG sf expense add --due type=string
+FLAG sf expense add --item type=stringArray
+FLAG sf expense add --name type=string
+FLAG sf expense add --tag type=stringArray
+FLAG sf expense add --type type=string
+FLAG sf expense add --variable type=string
+FLAG sf expense add --vat type=string
+FLAG sf expense attachment download --output type=string
+FLAG sf expense edit --amount type=string
+FLAG sf expense edit --attachment type=string
+FLAG sf expense edit --category type=string
+FLAG sf expense edit --client type=string
+FLAG sf expense edit --comment type=string
+FLAG sf expense edit --created type=string
+FLAG sf expense edit --currency type=string
+FLAG sf expense edit --data type=string
+FLAG sf expense edit --document-no type=string
+FLAG sf expense edit --due type=string
+FLAG sf expense edit --name type=string
+FLAG sf expense edit --tag type=stringArray
+FLAG sf expense edit --type type=string
+FLAG sf expense edit --variable type=string
+FLAG sf expense edit --vat type=string
+FLAG sf expense item add --expense type=string
+FLAG sf expense item add --item type=stringArray
+FLAG sf expense item delete --id type=stringArray
+FLAG sf expense item list --expense type=string
+FLAG sf expense list --all type=bool
+FLAG sf expense list --category type=string
+FLAG sf expense list --client type=string
+FLAG sf expense list --direction type=string
+FLAG sf expense list --filter type=stringArray
+FLAG sf expense list --page type=int
+FLAG sf expense list --per-page type=int
+FLAG sf expense list --search type=string
+FLAG sf expense list --sort type=string
+FLAG sf expense list --status type=string
+FLAG sf expense list --type type=string
+FLAG sf expense pay --amount type=string
+FLAG sf expense pay --cash-register type=string
+FLAG sf expense pay --currency type=string
+FLAG sf expense pay --data type=string
+FLAG sf expense pay --date type=string
+FLAG sf expense pay --type type=string
+FLAG sf expense related add --child type=string
+FLAG sf expense related add --data type=string
+FLAG sf expense related add --parent type=string
+FLAG sf expense related add --type type=string
+FLAG sf export create --data type=string
+FLAG sf export create --hide-payment-info type=bool
+FLAG sf export create --hide-signature type=bool
+FLAG sf export create --invoice type=stringArray
+FLAG sf export create --merge type=bool
+FLAG sf export create --only-merge type=bool
+FLAG sf export create --pdf type=bool
+FLAG sf export create --sort-client type=bool
+FLAG sf export create --sort-date type=bool
+FLAG sf export create --xls type=bool
+FLAG sf export download --output type=string
+FLAG sf invoice create --checksum type=string
+FLAG sf invoice create --client type=string
+FLAG sf invoice create --comment type=string
+FLAG sf invoice create --constant type=string
+FLAG sf invoice create --created type=string
+FLAG sf invoice create --data type=string
+FLAG sf invoice create --delivery type=string
+FLAG sf invoice create --due type=string
+FLAG sf invoice create --item type=stringArray
+FLAG sf invoice create --name type=string
+FLAG sf invoice create --new-client type=string
+FLAG sf invoice create --payment-type type=string
+FLAG sf invoice create --tag type=stringArray
+FLAG sf invoice create --type type=string
+FLAG sf invoice create --variable type=string
+FLAG sf invoice edit --client type=string
+FLAG sf invoice edit --comment type=string
+FLAG sf invoice edit --constant type=string
+FLAG sf invoice edit --created type=string
+FLAG sf invoice edit --data type=string
+FLAG sf invoice edit --delivery type=string
+FLAG sf invoice edit --due type=string
+FLAG sf invoice edit --name type=string
+FLAG sf invoice edit --payment-type type=string
+FLAG sf invoice edit --tag type=stringArray
+FLAG sf invoice edit --type type=string
+FLAG sf invoice edit --variable type=string
+FLAG sf invoice item add --invoice type=string
+FLAG sf invoice item add --item type=stringArray
+FLAG sf invoice item delete --invoice type=string
+FLAG sf invoice item list --invoice type=string
+FLAG sf invoice list --all type=bool
+FLAG sf invoice list --client type=string
+FLAG sf invoice list --direction type=string
+FLAG sf invoice list --filter type=stringArray
+FLAG sf invoice list --order-no type=string
+FLAG sf invoice list --page type=int
+FLAG sf invoice list --per-page type=int
+FLAG sf invoice list --search type=string
+FLAG sf invoice list --sort type=string
+FLAG sf invoice list --status type=string
+FLAG sf invoice list --tag type=string
+FLAG sf invoice list --type type=string
+FLAG sf invoice list --variable type=string
+FLAG sf invoice mark-sent --email type=string
+FLAG sf invoice mark-sent --message type=string
+FLAG sf invoice mark-sent --subject type=string
+FLAG sf invoice pay --amount type=string
+FLAG sf invoice pay --cash-register type=string
+FLAG sf invoice pay --currency type=string
+FLAG sf invoice pay --data type=string
+FLAG sf invoice pay --date type=string
+FLAG sf invoice pay --document-no type=string
+FLAG sf invoice pay --type type=string
+FLAG sf invoice pdf --bysquare type=bool
+FLAG sf invoice pdf --language type=string
+FLAG sf invoice pdf --no-signature type=bool
+FLAG sf invoice pdf --output type=string
+FLAG sf invoice pdf --paypal type=bool
+FLAG sf invoice post --data type=string
+FLAG sf invoice receipt --output type=string
+FLAG sf invoice related add --child type=string
+FLAG sf invoice related add --data type=string
+FLAG sf invoice related add --parent type=string
+FLAG sf invoice related add --type type=string
+FLAG sf invoice send --bcc type=stringArray
+FLAG sf invoice send --body type=string
+FLAG sf invoice send --cc type=stringArray
+FLAG sf invoice send --data type=string
+FLAG sf invoice send --pdf-language type=string
+FLAG sf invoice send --subject type=string
+FLAG sf invoice send --to type=string
+FLAG sf skill install --dir type=string
+FLAG sf sms --data type=string
+FLAG sf sms --invoice type=string
+FLAG sf sms --message type=string
+FLAG sf sms --phone type=string
+FLAG sf stock add --data type=string
+FLAG sf stock add --description type=string
+FLAG sf stock add --internal-comment type=string
+FLAG sf stock add --name type=string
+FLAG sf stock add --price type=string
+FLAG sf stock add --purchase-price type=string
+FLAG sf stock add --sku type=string
+FLAG sf stock add --unit type=string
+FLAG sf stock add --vat type=string
+FLAG sf stock edit --data type=string
+FLAG sf stock edit --description type=string
+FLAG sf stock edit --internal-comment type=string
+FLAG sf stock edit --name type=string
+FLAG sf stock edit --price type=string
+FLAG sf stock edit --purchase-price type=string
+FLAG sf stock edit --sku type=string
+FLAG sf stock edit --unit type=string
+FLAG sf stock edit --vat type=string
+FLAG sf stock list --all type=bool
+FLAG sf stock list --direction type=string
+FLAG sf stock list --filter type=stringArray
+FLAG sf stock list --page type=int
+FLAG sf stock list --per-page type=int
+FLAG sf stock list --search type=string
+FLAG sf stock list --sort type=string
+FLAG sf stock movement add --data type=string
+FLAG sf stock movement add --item type=string
+FLAG sf stock movement add --note type=string
+FLAG sf stock movement add --quantity type=string
+FLAG sf stock movement add --sku type=string
+FLAG sf tag edit --name type=string
+FLAG sf ui --per-page type=int
+FLAG sf values --full type=bool
+SUB sf activity
+SUB sf auth
+SUB sf auth list
+SUB sf auth login
+SUB sf auth logout
+SUB sf auth status
+SUB sf auth switch
+SUB sf bank-account
+SUB sf bank-account add
+SUB sf bank-account delete
+SUB sf bank-account list
+SUB sf bank-account update
+SUB sf bank-moves
+SUB sf cache
+SUB sf cache clear
+SUB sf cache path
+SUB sf cash-register
+SUB sf cash-register item
+SUB sf cash-register item add
+SUB sf cash-register item delete
+SUB sf cash-register item list
+SUB sf cash-register item receipt
+SUB sf cash-register list
+SUB sf cash-register view
+SUB sf client
+SUB sf client contact
+SUB sf client contact add
+SUB sf client contact delete
+SUB sf client contact list
+SUB sf client create
+SUB sf client delete
+SUB sf client edit
+SUB sf client list
+SUB sf client view
+SUB sf commands
+SUB sf company
+SUB sf company data
+SUB sf company list
+SUB sf doctor
+SUB sf expense
+SUB sf expense add
+SUB sf expense attachment
+SUB sf expense attachment download
+SUB sf expense categories
+SUB sf expense delete
+SUB sf expense edit
+SUB sf expense item
+SUB sf expense item add
+SUB sf expense item delete
+SUB sf expense item list
+SUB sf expense list
+SUB sf expense pay
+SUB sf expense payment
+SUB sf expense payment delete
+SUB sf expense related
+SUB sf expense related add
+SUB sf expense related delete
+SUB sf expense view
+SUB sf export
+SUB sf export create
+SUB sf export download
+SUB sf export status
+SUB sf invoice
+SUB sf invoice create
+SUB sf invoice delete
+SUB sf invoice edit
+SUB sf invoice item
+SUB sf invoice item add
+SUB sf invoice item delete
+SUB sf invoice item list
+SUB sf invoice language
+SUB sf invoice list
+SUB sf invoice mark-sent
+SUB sf invoice pay
+SUB sf invoice payment
+SUB sf invoice payment delete
+SUB sf invoice pdf
+SUB sf invoice post
+SUB sf invoice receipt
+SUB sf invoice recover
+SUB sf invoice related
+SUB sf invoice related add
+SUB sf invoice related delete
+SUB sf invoice send
+SUB sf invoice view
+SUB sf invoice will-not-be-paid
+SUB sf limits
+SUB sf skill
+SUB sf skill install
+SUB sf skill show
+SUB sf sms
+SUB sf stock
+SUB sf stock add
+SUB sf stock delete
+SUB sf stock edit
+SUB sf stock list
+SUB sf stock movement
+SUB sf stock movement add
+SUB sf stock movement list
+SUB sf stock view
+SUB sf tag
+SUB sf tag add
+SUB sf tag delete
+SUB sf tag edit
+SUB sf tag list
+SUB sf ui
+SUB sf values
+SUB sf version
