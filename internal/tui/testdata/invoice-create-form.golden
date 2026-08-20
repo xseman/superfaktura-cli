@@ -1,0 +1,82 @@
+screen 100x32
+ 0 | Overview  Invoices  Expenses  Clients                                                      876/1000|
+ 1 ||
+ 2 |┃ Invoice name|
+ 3 |┃ >|
+ 4 ||
+ 5 |  Existing client *|
+ 6 |  required|
+ 7 |  > — choose one —|
+ 8 |    Acme s.r.o.|
+ 9 |    Beta a.s.|
+10 |    Gamma s.r.o.|
+11 ||
+12 |  Comment|
+13 |  >|
+14 ||
+15 |  Constant symbol|
+16 |  >|
+17 ||
+18 |  Issue date|
+19 ||
+20 |  > YYYY-MM-DD|
+21 ||
+22 |  Delivery date|
+23 ||
+24 |  > YYYY-MM-DD|
+25 ||
+26 |  Due date|
+27 ||
+28 |  > YYYY-MM-DD|
+29 ||
+30 |enter next|
+31 ||
+
+styles
+ 0  10-11  bg=23
+ 0  11-19  bold fg=231 bg=23
+ 0  19-20  bg=23
+ 0  92-100 fg=244
+ 2   0-1   fg=23
+ 2   2-14  bold fg=23
+ 3   0-1   fg=23
+ 3   2-4   fg=23
+ 3   4-5   reverse fg=23
+ 5   0-1   fg=240
+ 5   2-17  fg=244
+ 5  17-19  bold fg=23
+ 6   0-1   fg=240
+ 6   2-10  fg=131
+ 7   0-1   fg=240
+ 7   4-18  fg=244
+ 8   0-1   fg=240
+ 8   4-15  fg=244
+ 9   0-1   fg=240
+ 9   4-13  fg=244
+10   0-1   fg=240
+10   4-16  fg=244
+12   0-1   fg=240
+12   2-9   fg=244
+13   0-1   fg=240
+13   2-4   fg=244
+15   0-1   fg=240
+15   2-17  fg=244
+16   0-1   fg=240
+16   2-4   fg=244
+18   0-1   fg=240
+18   2-12  fg=244
+19   0-1   fg=240
+20   0-1   fg=240
+20   2-14  fg=244
+22   0-1   fg=240
+22   2-15  fg=244
+23   0-1   fg=240
+24   0-1   fg=240
+24   2-14  fg=244
+26   0-1   fg=240
+26   2-10  fg=244
+27   0-1   fg=240
+28   0-1   fg=240
+28   2-14  fg=244
+30   0-5   bold
+30   6-10  fg=244

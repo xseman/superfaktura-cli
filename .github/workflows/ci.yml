@@ -1,0 +1,35 @@
+name: CI
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-go@v5
+              with:
+                  go-version: "1.24"
+                  cache: true
+
+            - run: make fmt-check
+            - run: make vet
+            - run: make tidy-check
+
+            - uses: golangci/golangci-lint-action@v8
+              with:
+                  version: latest
+
+            - run: make test-race
+
+            # The e2e suite has no credentials here; this proves it still
+            # compiles and that the offline cases pass rather than silently
+            # going unbuilt.
+            - run: make build
+            - run: go test -count=1 -tags e2e ./e2e/...
