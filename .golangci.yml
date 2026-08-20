@@ -1,0 +1,60 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - bodyclose
+    - gosec
+    - misspell
+    - revive
+    - unconvert
+    - unparam
+    - nolintlint
+
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+        - name: package-comments
+    gosec:
+      excludes:
+        # G104 duplicates errcheck.
+        - G104
+    errcheck:
+      # Every excluded call writes to the user's terminal, where a failed
+      # write has nowhere to be reported anyway.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+    misspell:
+      locale: US
+      # Slovak and Czech terms appear throughout the API surface.
+      ignore-rules:
+        - IBAN
+        - DPH
+
+  exclusions:
+    generated: lax
+    rules:
+      - path: _test\.go$
+        linters:
+          - gosec
+          - unparam
+
+formatters:
+  enable:
+    - gofmt
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

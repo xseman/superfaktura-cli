@@ -1,0 +1,40 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "go",
+      "initial-version": "0.1.0",
+      "package-name": "superfaktura-cli",
+      "include-v-in-tag": true,
+      "include-component-in-tag": false,
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "pull-request-title-pattern": "v${version}",
+      "pull-request-header": "🚢 Release",
+      "pull-request-footer": "",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": ".claude-plugin/plugin.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  },
+  "changelog-sections": [
+    { "type": "feat", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "deps", "section": "Dependency Updates" },
+    { "type": "docs", "section": "Documentation" },
+    { "type": "build", "section": "Build System" },
+    { "type": "ci", "section": "Maintenance" },
+    { "type": "chore", "section": "Maintenance" },
+    { "type": "refactor", "section": "Maintenance" },
+    { "type": "revert", "section": "Reverts" },
+    { "type": "security", "section": "Security" },
+    { "type": "test", "section": "Testing" },
+    { "type": "style", "section": "Code Style", "hidden": true }
+  ]
+}
