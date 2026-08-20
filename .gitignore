@@ -1,0 +1,10 @@
+.reference/
+.env.test
+bin/
+coverage.out
+
+# agent worktrees, never part of the repo
+.claude/worktrees/
+
+# goreleaser build output
+dist/
