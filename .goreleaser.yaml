@@ -1,0 +1,53 @@
+version: 2
+
+project_name: superfaktura-cli
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: sf
+    main: ./cmd/sf
+    binary: sf
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: sf
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: >-
+      sf_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+# release-please owns CHANGELOG.md and the release notes.
+changelog:
+  disable: true
+
+release:
+  # release-please already created the release; only add the artifacts to it.
+  mode: append
+  prerelease: auto
+  footer: |
+    ## Install
+
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/xseman/superfaktura-cli/main/scripts/install.sh | bash
+    ```

@@ -1,0 +1,53 @@
+name: Release
+
+# release-please owns the version: it opens a release PR from the conventional
+# commits on main, and merging that PR creates the tag and the GitHub release.
+# goreleaser then builds the binaries into the release it already made — hence
+# `release.mode: append` in .goreleaser.yaml.
+#
+# A run that tagged but failed to upload is fixed with "Re-run failed jobs":
+# the re-run keeps release-please's outputs, so there is no manual tag path.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      # A PAT, not GITHUB_TOKEN: releases made by GITHUB_TOKEN do not trigger
+      # workflows, and the release PR needs CI to run on it.
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: .github/.release-config.json
+          manifest-file: .github/.release-manifest.json
+
+  goreleaser:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The tag, not main: goreleaser refuses to build off an untagged commit.
+          ref: ${{ needs.release-please.outputs.tag_name }}
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
