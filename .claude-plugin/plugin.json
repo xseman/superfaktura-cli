@@ -8,5 +8,7 @@
   },
   "homepage": "https://github.com/xseman/superfaktura-cli",
   "license": "MIT",
-  "skills": ["../internal/skills/superfaktura"]
+  "skills": [
+    "../internal/skills/superfaktura"
+  ]
 }
