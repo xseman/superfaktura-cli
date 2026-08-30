@@ -1,0 +1,13 @@
+.reference/
+.env.test
+bin/
+coverage.out
+
+# written by make surface-snapshot; the surface test skips when it is absent
+SURFACE.txt
+
+# local field notes on where the vendor docs and the live API disagree
+API-DISCREPANCIES.md
+
+# agent worktrees, never part of the repo
+.claude/worktrees/
