@@ -1,7 +1,7 @@
 {
   "name": "superfaktura",
   "description": "Drive SuperFaktura invoicing from Claude Code via the sf CLI",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Filip Seman",
     "url": "https://github.com/xseman"
