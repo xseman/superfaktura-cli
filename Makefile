@@ -33,6 +33,19 @@ test-e2e: build
 seed: build
 	SF_SEED=1 go test -count=1 -tags e2e ./e2e/ -run TestSeedSandbox -v
 
+# Every tape builds ./bin/sf and runs it against docs/demo/api.go, a local
+# stand-in for the API, so recording needs no account and spends no quota.
+# Needs vhs v0.10 or v0.11 (v0.12 records but writes no GIF: vhs#787), ttyd,
+# ffmpeg, a Chrome, curl and jq.
+#
+## demo: re-record every GIF in docs/demo
+demo:
+	vhs docs/demo/cli.tape
+	vhs docs/demo/output.tape
+	vhs docs/demo/ui.tape
+	vhs docs/demo/form.tape
+	@kill $$(cat /tmp/sf-demo/api.pid) 2>/dev/null || true
+
 ## test-run: run one test by name, e.g. make test-run NAME=TestSurfaceSnapshot
 test-run:
 	go test ./... -run '$(NAME)' -v
@@ -138,6 +151,6 @@ check: fmt-check vet lint tidy-check test-race
 clean:
 	rm -rf bin coverage.out
 
-.PHONY: help build install test test-race test-e2e seed test-run fuzz fuzz-list \
+.PHONY: help build install test test-race test-e2e seed demo test-run fuzz fuzz-list \
 	cover surface-snapshot surface-check frames-snapshot fmt fmt-check vet lint \
 	vuln secrets security tidy-check check clean

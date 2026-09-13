@@ -15,6 +15,8 @@ ID    NUMBER   CLIENT       ISSUED      DUE         TOTAL    TO PAY
 $ sf invoice list --status 99 --json | jq '[.data[].Invoice.id]'
 ```
 
+![the CLI: overdue invoices, an invoice planned with --dry-run, issued, paid and viewed](docs/demo/cli.gif)
+
 ## Install
 
 ```sh
@@ -107,6 +109,8 @@ piped or redirected.
 | `--ids-only` | one ID per line                         |
 | `--count`    | the number of results                   |
 | `--jq EXPR`  | filter the JSON with a jq expression    |
+
+![piped output as a JSON envelope, --jq, --count, --ids-only, and an ambiguous name exiting 8](docs/demo/output.gif)
 
 The envelope is stable:
 
@@ -271,6 +275,8 @@ can consume a lot of quota — `sf limits` shows what is left.
 
 `sf ui` opens a terminal browser over the account.
 
+![the browser: overview, invoices and their detail, a page filter, scope and period, expenses and clients](docs/demo/ui.gif)
+
 ```console
  Overview  Invoices  Expenses  Clients                                   836/1000
 
@@ -309,6 +315,8 @@ to mark sent and `P` for the PDF.
 The form is generated from the command's own flags, so it offers exactly what
 `sf invoice create --help` does — a flag added to the command appears in the
 form the same day.
+
+![creating an invoice in the browser, its line items totalled as typed, then paying it](docs/demo/form.gif)
 
 ```
    Client ID or name
@@ -467,7 +475,16 @@ make build            # ./bin/sf
 make test             # unit tests, no API needed
 make check            # what CI runs
 make surface-snapshot # after an intentional CLI change
+make demo             # re-record every GIF in docs/demo
 ```
+
+Every recording comes from `docs/demo/*.tape`, replayed with
+[VHS](https://github.com/charmbracelet/vhs) against `docs/demo/api.go` — a
+local stand-in for the API with made-up clients and invoices — so recording
+needs no account and spends no quota. It needs `vhs` v0.10 or v0.11 (v0.12
+records but never writes the GIF,
+[vhs#787](https://github.com/charmbracelet/vhs/issues/787)), `ttyd`, `ffmpeg`,
+a Chrome, `curl`, `jq` and the JetBrainsMono Nerd Font.
 
 `SURFACE.txt` is a golden snapshot of every command, flag and positional
 argument. A change to the CLI surface fails the build until the snapshot is
