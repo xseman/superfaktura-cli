@@ -513,4 +513,8 @@ func TestANumericErrorCodeIsStillAnError(t *testing.T) {
 	if err == nil {
 		t.Fatal("a body carrying an error was returned as the download")
 	}
+	// The message is in "error" itself here, and is all the user has to go on.
+	if got := output.AsError(err).Message; got != "Príloha č.666 nebola nájdená pre náklad č.666" {
+		t.Errorf("message = %q", got)
+	}
 }

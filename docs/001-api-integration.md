@@ -96,8 +96,9 @@ carrying `{"error":1,"message":…}`, the sandbox answers a subscription problem
 with **401**, and `/tags/add` uses proper 201/403/409. All three are real.
 
 Decoded loosely on purpose: `error` is a number on most endpoints and a string
-on a few; `error_message` is sometimes a string and sometimes a map of per-field
-errors, which lands in `Error.Fields` so a caller knows *which* field.
+on a few — on the attachment download it *is* the message; `error_message` is
+sometimes a string and sometimes a map of per-field errors, which lands in
+`Error.Fields` so a caller knows *which* field.
 
 The Peppol endpoints are the exception that behaves: real status codes, an
 `error_code` naming the failure, and sometimes the reason in `data`

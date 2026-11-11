@@ -472,6 +472,9 @@ func decodeError(status int, raw []byte, limits RateLimit) error {
 		message = fieldErrors(env.ErrorMessage)
 	}
 	if message == "" {
+		message = errorText(env.Error)
+	}
+	if message == "" {
 		message = "request failed"
 	}
 
@@ -499,6 +502,18 @@ func populated(data json.RawMessage) json.RawMessage {
 	}
 
 	return data
+}
+
+// errorText is the message, on the endpoint that puts it in "error" itself:
+// /expenses/downloadAttachment answers {"error_code":0,"error":"Príloha …"}.
+// A string holding only a number is the flag, not a message.
+func errorText(v any) string {
+	text, _ := v.(string)
+	if _, err := strconv.Atoi(text); err == nil {
+		return ""
+	}
+
+	return text
 }
 
 // isErrorFlag reports whether the "error" field signals a failure. Absent is
