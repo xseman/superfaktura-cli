@@ -1,5 +1,6 @@
 # Output for scripts: a JSON envelope when piped, --jq, --count, --ids-only,
-# and a failure that carries its code and its candidates.
+# a failure that carries its code and its candidates, and a refusal that
+# carries the API's own code and data.
 # Record with: make demo   (needs vhs v0.10 or v0.11, ttyd, ffmpeg and a Chrome)
 Output docs/demo/output.gif
 
@@ -39,4 +40,10 @@ Sleep 2500ms
 # the candidates to choose from.
 Ctrl+L
 Type "sf invoice create --client Acme --item 'Consulting:1:500:23' --json; echo exit $?" Enter
+Sleep 5s
+
+# Where the API names the failure itself, its code and data come along: an
+# invoice that was never sent over Peppol has no status. Exit 2.
+Ctrl+L
+Type "sf invoice peppol status 309104 --json; echo exit $?" Enter
 Sleep 5s

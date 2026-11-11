@@ -77,6 +77,8 @@ type invoice struct {
 	client   *clientRecord
 	items    []item
 	payments []payment
+	// operation is set once the invoice has been sent over Peppol.
+	operation string
 }
 
 type expense struct {
@@ -327,6 +329,10 @@ func (s *state) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		write(w, map[string]any{"error": 0, "error_message": "Faktúra bola zmazaná"})
 	case strings.HasPrefix(path, "/invoices/mark_sent/"):
 		write(w, map[string]any{"error": 0, "error_message": "Faktúra bola označená ako odoslaná"})
+	case path == "/invoices/sendPeppol":
+		s.sendPeppol(w, r)
+	case strings.HasPrefix(path, "/invoices/getPeppolStatus/"):
+		s.peppolStatus(w, strings.TrimPrefix(path, "/invoices/getPeppolStatus/"))
 	case strings.HasPrefix(path, "/invoices/pdf/"):
 		h.Set("Content-Type", "application/pdf")
 		_, _ = io.WriteString(w, "%PDF-1.4\n% demo invoice\n%%EOF\n")
@@ -496,6 +502,54 @@ func (s *state) addPayment(w http.ResponseWriter, r *http.Request) {
 		orDefault(text(doc.InvoicePayment["payment_type"]), "transfer"))
 	write(w, map[string]any{"error": 0, "error_message": "Úhrada bola pridaná", "data": map[string]any{
 		"InvoicePayment": p, "Invoice": inv,
+	}})
+}
+
+// sendPeppol queues an invoice the way invoice.md documents: 202 and an
+// operation id. Here the send is accepted at once, so the next status read has
+// something to show.
+func (s *state) sendPeppol(w http.ResponseWriter, r *http.Request) {
+	var doc struct {
+		InvoiceID int `json:"invoice_id"`
+	}
+	if err := readPayload(r, &doc); err != nil {
+		fail(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	inv := s.invoice(strconv.Itoa(doc.InvoiceID))
+	if inv == nil {
+		fail(w, http.StatusNotFound, "Invoice not found")
+		return
+	}
+
+	inv.operation = fmt.Sprintf("018f4471-67f8-7c12-a3b4-%012d", doc.InvoiceID)
+	w.WriteHeader(http.StatusAccepted)
+	write(w, map[string]any{"error": 0, "error_message": "", "data": map[string]any{
+		"invoice_id": doc.InvoiceID, "operation_id": inv.operation, "status": "queued",
+	}})
+}
+
+// peppolStatus answers with the documented record for an invoice that was
+// sent, and with the refusal the live API gives for one that was not.
+func (s *state) peppolStatus(w http.ResponseWriter, id string) {
+	number, _ := strconv.Atoi(id)
+	inv := s.invoice(id)
+	if inv == nil || inv.operation == "" {
+		w.WriteHeader(http.StatusNotFound)
+		write(w, map[string]any{
+			"error": 1, "error_code": "peppol.send_status_not_found",
+			"error_message": "Peppol send status was not found for the requested invoice.",
+			"data":          map[string]int{"invoice_id": number},
+		})
+		return
+	}
+
+	at := time.Now().Format(time.RFC3339)
+	write(w, map[string]any{"error": 0, "error_message": "", "data": map[string]any{
+		"invoice_id": number, "operation_id": inv.operation, "status": "accepted",
+		"outbound_document_id": 501, "provider_document_id": "flowis-document-1",
+		"provider_status": "accepted", "failure_code": nil,
+		"created_at": at, "completed_at": at,
 	}})
 }
 

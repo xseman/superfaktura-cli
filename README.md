@@ -15,7 +15,7 @@ ID    NUMBER   CLIENT       ISSUED      DUE         TOTAL    TO PAY
 $ sf invoice list --status 99 --json | jq '[.data[].Invoice.id]'
 ```
 
-![the CLI: overdue invoices, an invoice planned with --dry-run, issued, paid and viewed](docs/demo/cli.gif)
+![the CLI: overdue invoices, an invoice planned with --dry-run, issued, sent over Peppol, paid and viewed](docs/demo/cli.gif)
 
 ## Install
 
@@ -110,7 +110,7 @@ piped or redirected.
 | `--count`    | the number of results                   |
 | `--jq EXPR`  | filter the JSON with a jq expression    |
 
-![piped output as a JSON envelope, --jq, --count, --ids-only, and an ambiguous name exiting 8](docs/demo/output.gif)
+![piped output as a JSON envelope, --jq, --count, --ids-only, an ambiguous name exiting 8, and a refusal carrying the API's own code](docs/demo/output.gif)
 
 The envelope is stable:
 

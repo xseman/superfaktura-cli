@@ -1,4 +1,5 @@
-# The CLI: what is overdue, an invoice planned with --dry-run, issued and paid.
+# The CLI: what is overdue, an invoice planned with --dry-run, issued, sent as
+# an eInvoice over Peppol and paid.
 # Record with: make demo   (needs vhs v0.10 or v0.11, ttyd, ffmpeg and a Chrome)
 Output docs/demo/cli.gif
 
@@ -33,6 +34,13 @@ Sleep 4500ms
 Ctrl+L
 Type "sf invoice create --client 'Acme s.r.o.' --item 'Konzultácie:8:75:23' --due '+14 days'" Enter
 Sleep 3s
+
+# Delivered as an eInvoice over Peppol: queued, then checked.
+Ctrl+L
+Type "sf invoice peppol send 309111" Enter
+Sleep 2500ms
+Type "sf invoice peppol status 309111" Enter
+Sleep 4s
 
 # Paid in full, and what it looks like now.
 Type "sf invoice pay 309111" Enter
