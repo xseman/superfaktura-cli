@@ -157,7 +157,7 @@ $ sf commands
 
 | Group           | What it covers                                            |
 | --------------- | --------------------------------------------------------- |
-| `invoice`       | create, edit, list, view, delete, PDF, send, pay, related |
+| `invoice`       | CRUD, PDF, send, Peppol eInvoice, pay, related items      |
 | `client`        | CRUD plus `client contact` for contact people             |
 | `expense`       | CRUD, payments, attachments, categories, related items    |
 | `stock`         | items and movements                                       |

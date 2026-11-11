@@ -97,6 +97,8 @@ Send it and record the payment:
 
 ```sh
 sf invoice send 1042 --to client@example.com
+sf invoice peppol send 1042          # eInvoice over Peppol; queued, not delivered
+sf invoice peppol status 1042        # how that send went
 sf invoice pay 1042 --amount 1240 --type transfer --date 2026-08-01
 sf invoice pdf 1042 -o faktura.pdf
 ```
@@ -143,8 +145,8 @@ sf expense list --type invoice --per-page 50
   Never blindly retry a create — you will issue the invoice twice.
 - **Writes are real.** Creating, editing, paying and deleting all take effect
   immediately and appear in the user's accounting. Confirm destructive or
-  outward-facing actions — `invoice send`, `invoice delete`, `client delete`,
-  `sms` — with the user before running them.
+  outward-facing actions — `invoice send`, `invoice peppol send`,
+  `invoice delete`, `client delete`, `sms` — with the user before running them.
 - **One account can own several companies.** `sf company list` shows them;
   `--company ID` picks one for a single invocation.
 - **Value lists are cached for a day**, the PDF token for a month. Documents

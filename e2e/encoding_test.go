@@ -18,7 +18,7 @@ import (
 
 // The request body encoding is the least certain thing in the client. The
 // documentation contradicts itself — intro.md says either content type works
-// for any POST, the axios example says "Don't send pure JSON", and seven
+// for any POST, the axios example says "Don't send pure JSON", and eight
 // endpoints carry their own curl example using a raw JSON body — and the
 // sandbox account cannot be used to settle it.
 //
@@ -172,7 +172,7 @@ func TestWriteEndpointsUseTheDocumentedMethodAndEncoding(t *testing.T) {
 		{"sms", []string{"sms", "--invoice", "1", "--phone", "+421900"},
 			"POST", "/sms/send", form},
 
-		// Raw JSON body: these seven endpoints are documented that way.
+		// Raw JSON body: these eight endpoints are documented that way.
 		{"clients create", []string{"client", "create", "--name", "X"},
 			"POST", "/clients/create", raw},
 		{"clients edit", []string{"client", "edit", "1", "--name", "X"},
@@ -181,6 +181,8 @@ func TestWriteEndpointsUseTheDocumentedMethodAndEncoding(t *testing.T) {
 			"POST", "/invoices/send", raw},
 		{"invoice mark_as_sent", []string{"invoice", "mark-sent", "1", "--email", "a@b.c"},
 			"POST", "/invoices/mark_as_sent", raw},
+		{"invoice peppol send", []string{"invoice", "peppol", "send", "1"},
+			"POST", "/invoices/sendPeppol", raw},
 		{"stock add", []string{"stock", "add", "--name", "X"},
 			"POST", "/stock_items/add", raw},
 		{"stock movement add", []string{"stock", "movement", "add", "--item", "1", "--quantity", "1"},
@@ -228,6 +230,18 @@ func TestWriteEndpointsUseTheDocumentedMethodAndEncoding(t *testing.T) {
 				t.Errorf("the payload did not decode from a %s body", got.ContentType)
 			}
 		})
+	}
+}
+
+func TestPeppolSendsTheInvoiceIDAsANumber(t *testing.T) {
+	// invoice.md types invoice_id as an int, and an accepted send has never
+	// been seen on the wire, so the documented type is what must go out.
+	srv, c := server(t)
+	invoke(t, srv, "invoice", "peppol", "send", "12")
+
+	got, _ := c.last()
+	if got.Body["invoice_id"] != float64(12) {
+		t.Errorf("invoice_id = %#v, want the number 12", got.Body["invoice_id"])
 	}
 }
 

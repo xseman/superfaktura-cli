@@ -30,7 +30,7 @@ the overview.
 ## 2 · Writes: form-encoded or raw JSON, per endpoint
 
 The documentation contradicts itself. `intro.md` says either content type works;
-the axios example says "Don't send pure JSON"; seven endpoints carry their own
+the axios example says "Don't send pure JSON"; eight endpoints carry their own
 curl example using raw JSON. **The rule adopted is: follow each endpoint's own
 example.**
 
@@ -52,12 +52,13 @@ example.**
   /clients/edit/{id}
   /invoices/send                           client.Delete → DELETE
   /invoices/mark_as_sent                     /stock_items/delete
-  /stock_items/add                           /expense_items/delete
-  /stock_items/addStockMovement
-  /stock_items/edit/{id} → client.Patch    Some writes are GET:
-    (the only PATCH; PHP does not            /invoices/delete/{id}
-     populate $_POST for PATCH, so           /invoices/mark_sent/{id}
-     form encoding cannot work here)         /clients/delete/{id}
+  /invoices/sendPeppol                       /expense_items/delete
+  /stock_items/add
+  /stock_items/addStockMovement            Some writes are GET:
+  /stock_items/edit/{id} → client.Patch      /invoices/delete/{id}
+    (the only PATCH; PHP does not            /invoices/mark_sent/{id}
+     populate $_POST for PATCH, so           /clients/delete/{id}
+     form encoding cannot work here)
 ```
 
 `e2e/encoding_test.go` asserts the method and content type of **every** write

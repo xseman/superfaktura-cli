@@ -158,8 +158,9 @@ is portable.
 - Write tests create real records and clean up after themselves. `make seed` is
   the deliberate exception — it leaves them, needs `SF_SEED=1` on top of the
   build tag and credentials, and must never fire by accident.
-- Three commands are never run automatically because they have real-world side
-  effects: `invoice send` (email), `invoice post` (postage), `sms`.
+- Four commands are never run automatically because they have real-world side
+  effects: `invoice send` (email), `invoice post` (postage),
+  `invoice peppol send` (an eInvoice on the Peppol network), `sms`.
 
 ## The surface snapshot
 

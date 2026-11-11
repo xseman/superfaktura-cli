@@ -3,6 +3,8 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -40,6 +42,7 @@ func init() {
 		invoiceReceiptCmd(),
 		invoiceSendCmd(),
 		invoicePostCmd(),
+		invoicePeppolCmd(),
 		invoiceMarkSentCmd(),
 		invoiceUnpayableCmd(),
 		invoicePayCmd(),
@@ -640,6 +643,129 @@ func invoicePostCmd() *cobra.Command {
 	}
 
 	dataFlag(cmd, &data)
+	return cmd
+}
+
+var peppolFields = []render.Field{
+	{Label: "Invoice", Path: "data.invoice_id"},
+	{Label: "Status", Path: "data.status"},
+	{Label: "Provider status", Path: "data.provider_status"},
+	{Label: "Failure", Path: "data.failure_code"},
+	{Label: "Operation", Path: "data.operation_id"},
+	{Label: "Outbound document", Path: "data.outbound_document_id"},
+	{Label: "Provider document", Path: "data.provider_document_id"},
+	{Label: "Created", Path: "data.created_at"},
+	{Label: "Completed", Path: "data.completed_at"},
+}
+
+func invoicePeppolCmd() *cobra.Command {
+	var data, webhookURL, webhookSecret string
+
+	send := &cobra.Command{
+		Use:   "send <id>",
+		Short: "Send an invoice over the Peppol network",
+		Long: `Queues the invoice for delivery as an eInvoice over Peppol.
+
+The company must have Peppol sending enabled. The API only queues the send and
+delivers it later, so success here means "queued" — 'sf invoice peppol status'
+reports how it went.
+
+With --webhook-url SuperFaktura also posts the final outcome to that address,
+signed with --webhook-secret when one is given. A flag value lands in the shell
+history and the process list; --data @file keeps the secret out of both. Either
+way --dry-run prints the request as it would be sent, secret included.`,
+		Args: cobra.ExactArgs(1),
+		Example: "  sf invoice peppol send 1042\n" +
+			"  sf invoice peppol send 1042 --data @webhook.json\n" +
+			"  sf invoice peppol status 1042",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := requireID("invoice", args[0])
+			if err != nil {
+				return err
+			}
+			doc, err := readPayload(data)
+			if err != nil {
+				return err
+			}
+
+			// The fields sit at the top level: there is no model for put to nest
+			// under. The id goes out as the number invoice.md types it as: the
+			// sandbox takes a quoted one as far as its refusal, but an accepted
+			// send has never been seen, so the documented type is the safe one.
+			number, _ := strconv.Atoi(id) // requireID has already parsed it
+			doc["invoice_id"] = number
+			if webhookURL != "" {
+				doc["webhook_url"] = webhookURL
+			}
+			if webhookSecret != "" {
+				doc["webhook_secret"] = webhookSecret
+			}
+			if doc["webhook_secret"] != nil && doc["webhook_url"] == nil {
+				return usageErrorf("a webhook secret needs a webhook URL")
+			}
+
+			raw, err := api.PostJSON(ctx(cmd), "/invoices/sendPeppol", doc)
+			if err != nil {
+				return err
+			}
+
+			// Not emitWrite: there is no new record to name, and the operation
+			// id is the one thing a webhook can later be matched by.
+			message := "Invoice " + id + " queued for Peppol delivery"
+			obj, err := decodeObject(raw)
+			if err != nil {
+				// The same call emitWrite makes: a write that went through
+				// but answered with something unexpected is still a success.
+				return emitAction(nil, message)
+			}
+			// The invoice id, so the output pipes into `peppol status`.
+			if idsRequested() {
+				return writeIDs([]map[string]any{obj}, "data.invoice_id")
+			}
+			operation := render.Text(render.Get(obj, "data.operation_id"))
+
+			return emit(raw,
+				func(w io.Writer) {
+					fmt.Fprintln(w, message)
+					if operation != "" {
+						fmt.Fprintf(w, "Operation: %s\n", operation)
+					}
+				},
+				output.WithSummary(message),
+				output.WithNext(output.Step{Cmd: "sf invoice peppol status " + id, Does: "see how the send went"}))
+		},
+	}
+	dataFlag(send, &data)
+	send.Flags().StringVar(&webhookURL, "webhook-url", "", "HTTPS address to notify of the final outcome")
+	send.Flags().StringVar(&webhookSecret, "webhook-secret", "", "Secret the notification is signed with (needs --webhook-url)")
+
+	status := &cobra.Command{
+		Use:   "status <id>",
+		Short: "Check how a Peppol send went",
+		Long: `Shows the latest Peppol sending status recorded for the invoice.
+
+A failed delivery is not an error here: the request succeeds and the status
+reads "failed", with the reason under Failure or Provider status.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id, err := requireID("invoice", args[0])
+			if err != nil {
+				return err
+			}
+			raw, err := api.Get(ctx(cmd), "/invoices/getPeppolStatus/"+id, nil)
+			if err != nil {
+				return err
+			}
+			obj, err := decodeObject(raw)
+			if err != nil {
+				return err
+			}
+			return emitObject(raw, obj, peppolFields)
+		},
+	}
+
+	cmd := &cobra.Command{Use: "peppol", Short: "Send invoices as eInvoices over Peppol"}
+	cmd.AddCommand(send, status)
 	return cmd
 }
 
