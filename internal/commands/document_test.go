@@ -22,10 +22,12 @@ func decodeRow(t *testing.T, raw string) map[string]any {
 	return obj
 }
 
-// A trimmed copy of a real invoice: two named items and one payment.
+// A trimmed copy of a real invoice: two named items and one payment. Due far
+// ahead, because the badge compares it with today: a real date turned this
+// UNPAID invoice OVERDUE the day it passed.
 const invoiceRow = `{
   "Invoice": {"id":"309101","invoice_no_formatted":"2026001","type":"regular",
-    "created":"2026-08-01","due":"2026-09-15","variable":"20260801",
+    "created":"2026-08-01","due":"2099-09-15","variable":"20260801",
     "amount":"640.00","vat":"147.20","total_amount":"787.20","amount_paid":"300.00",
     "invoice_currency":"EUR"},
   "Client": {"name":"Acme s.r.o."},
