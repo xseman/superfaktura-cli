@@ -136,6 +136,14 @@ candidates:
   "matches": ["Acme s.r.o. (7)", "Acme s.r.o. Trading (8)"] }
 ```
 
+Where the API names a failure and explains it — the Peppol endpoints do — its
+own code and data come along untouched:
+
+```json
+{ "ok": false, "code": "api_error", "error_code": "peppol.precheck_failed",
+  "details": { "issues": ["…"] } }
+```
+
 ### Exit codes
 
 | Code | Meaning           | Code | Meaning       |

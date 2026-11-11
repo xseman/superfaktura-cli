@@ -441,6 +441,12 @@ type errorEnvelope struct {
 	Message string `json:"message"`
 	// error_message is sometimes a string and sometimes a map of field errors.
 	ErrorMessage json.RawMessage `json:"error_message"`
+	// The Peppol endpoints name the failure and explain it in "data". The code
+	// is a string there and a number on /expenses/downloadAttachment, so it is
+	// decoded as loosely as "error": a strict type fails the whole envelope and
+	// the failure reads as a success.
+	ErrorCode any             `json:"error_code"`
+	Data      json.RawMessage `json:"data"`
 }
 
 // decodeError returns a mapped error when the body reports one, nil otherwise.
@@ -473,10 +479,26 @@ func decodeError(status int, raw []byte, limits RateLimit) error {
 	// Keep the per-field detail alongside the prose: a caller fixing the
 	// payload needs to know which field, not to parse a sentence.
 	var apiErr *output.Error
-	if errors.As(err, &apiErr) && len(fields) > 0 {
-		apiErr.Fields = fields
+	if errors.As(err, &apiErr) {
+		if len(fields) > 0 {
+			apiErr.Fields = fields
+		}
+		apiErr.APICode, _ = env.ErrorCode.(string)
+		apiErr.Details = populated(env.Data)
 	}
+
 	return err
+}
+
+// populated drops a "data" that says nothing. A failure with no detail still
+// carries the key, as [] or {}.
+func populated(data json.RawMessage) json.RawMessage {
+	switch string(bytes.TrimSpace(data)) {
+	case "", "null", "[]", "{}":
+		return nil
+	}
+
+	return data
 }
 
 // isErrorFlag reports whether the "error" field signals a failure. Absent is

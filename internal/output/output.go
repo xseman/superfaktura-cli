@@ -78,6 +78,16 @@ type Error struct {
 	// Matches lists the candidates behind an ambiguous reference, so a caller
 	// that asked for a client by name can choose without searching again.
 	Matches []string
+
+	// APICode is the API's own error code, on the endpoints that send one
+	// ("peppol.precheck_failed"). Code decides the exit status and is coarser:
+	// three different Peppol refusals are all a 409 and all an api_error.
+	APICode string
+
+	// Details is the "data" of a failed response, verbatim. The Peppol
+	// endpoints put the reason there — which checks an invoice failed — and
+	// the prose message does not repeat it.
+	Details json.RawMessage
 }
 
 func (e *Error) Error() string {
@@ -158,9 +168,11 @@ type ErrorResponse struct {
 	OK      bool                `json:"ok"`
 	Error   string              `json:"error"`
 	Code    string              `json:"code"`
+	APICode string              `json:"error_code,omitempty"`
 	Hint    string              `json:"hint,omitempty"`
 	Fields  map[string][]string `json:"fields,omitempty"`
 	Matches []string            `json:"matches,omitempty"`
+	Details json.RawMessage     `json:"details,omitempty"`
 }
 
 // ResponseOption decorates a success envelope.
@@ -259,9 +271,11 @@ func (w *Writer) Err(err error) error {
 		OK:      false,
 		Error:   e.Message,
 		Code:    e.Code,
+		APICode: e.APICode,
 		Hint:    e.Hint,
 		Fields:  e.Fields,
 		Matches: e.Matches,
+		Details: e.Details,
 	})
 }
 

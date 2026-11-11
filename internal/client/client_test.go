@@ -459,3 +459,58 @@ func TestAFlatErrorMessageProducesNoFieldMap(t *testing.T) {
 		t.Errorf("fields = %v, want none", fields)
 	}
 }
+
+func TestAnErrorKeepsTheAPIsCodeAndData(t *testing.T) {
+	// The Peppol endpoints say why in "data" and which failure in "error_code".
+	// The message alone reads "not eligible" and leaves nothing to fix.
+	c := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		_, _ = w.Write([]byte(`{"error":1,"error_code":"peppol.precheck_failed",` +
+			`"error_message":"Not eligible.","data":{"issues":["buyer has no Peppol ID"]}}`))
+	})
+
+	_, err := c.PostJSON(context.Background(), "/invoices/sendPeppol", map[string]any{})
+	apiErr := output.AsError(err)
+
+	if apiErr.APICode != "peppol.precheck_failed" {
+		t.Errorf("API code = %q", apiErr.APICode)
+	}
+	if string(apiErr.Details) != `{"issues":["buyer has no Peppol ID"]}` {
+		t.Errorf("details = %s", apiErr.Details)
+	}
+}
+
+func TestAnEmptyErrorDataIsDropped(t *testing.T) {
+	// The body the sandbox answers an invalid payload with: the key is there
+	// and holds nothing.
+	c := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":1,"error_code":"request.invalid_payload",` +
+			`"error_message":"invoice_id must be a positive integer.","data":[]}`))
+	})
+
+	_, err := c.PostJSON(context.Background(), "/invoices/sendPeppol", map[string]any{})
+
+	if details := output.AsError(err).Details; details != nil {
+		t.Errorf("details = %s, want none", details)
+	}
+}
+
+func TestANumericErrorCodeIsStillAnError(t *testing.T) {
+	// The body expenses.md documents for a missing attachment, on HTTP 200.
+	// error_code is a number here and a string on the Peppol endpoints. Typed
+	// strictly, the envelope fails to decode, the body stops being an error
+	// and the JSON is saved to disk as the attachment.
+	c := testClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"error_code": 0, "error": "Príloha č.666 nebola nájdená pre náklad č.666"}`))
+	})
+
+	_, _, err := c.Download(context.Background(), "/expenses/downloadAttachment/666/666", nil)
+
+	if err == nil {
+		t.Fatal("a body carrying an error was returned as the download")
+	}
+}

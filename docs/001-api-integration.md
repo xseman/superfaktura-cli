@@ -99,6 +99,16 @@ Decoded loosely on purpose: `error` is a number on most endpoints and a string
 on a few; `error_message` is sometimes a string and sometimes a map of per-field
 errors, which lands in `Error.Fields` so a caller knows *which* field.
 
+The Peppol endpoints are the exception that behaves: real status codes, an
+`error_code` naming the failure, and sometimes the reason in `data`
+(`data.issues` for an invoice that failed its checks, `data.reason` for a
+company that cannot send; the refusals seen live only echo the invoice id).
+Both travel verbatim — `Error.APICode` and
+`Error.Details`, `error_code` and `details` in the envelope — because the
+message alone says "not eligible" and leaves nothing to fix. Only a string
+code is kept: the attachment download answers a numeric `error_code: 0`,
+which names nothing.
+
 ## 4 · Responses nest under model names
 
 An invoice number is at `Invoice.invoice_no_formatted`, its client at

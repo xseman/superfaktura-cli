@@ -102,6 +102,28 @@ func TestTheErrorEnvelopeIsStable(t *testing.T) {
 	}
 }
 
+func TestTheErrorEnvelopeCarriesTheAPIsCodeAndData(t *testing.T) {
+	var buf bytes.Buffer
+	w := New(Options{Format: FormatJSON, Writer: &buf})
+
+	err := w.Err(&Error{
+		Code: CodeAPI, Message: "Not eligible.",
+		APICode: "peppol.precheck_failed", Details: json.RawMessage(`{"issues":["x"]}`),
+	})
+	if err != nil {
+		t.Fatalf("Err: %v", err)
+	}
+
+	var envelope map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &envelope); err != nil {
+		t.Fatalf("output is not JSON: %v", err)
+	}
+	details, _ := envelope["details"].(map[string]any)
+	if envelope["error_code"] != "peppol.precheck_failed" || details["issues"] == nil {
+		t.Errorf("envelope = %s", buf.String())
+	}
+}
+
 func TestQuietDropsTheEnvelope(t *testing.T) {
 	var buf bytes.Buffer
 	w := New(Options{Format: FormatQuiet, Writer: &buf})

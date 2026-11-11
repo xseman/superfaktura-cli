@@ -136,7 +136,9 @@ sf expense list --type invoice --per-page 50
   Never loop `view` over a list.
 - **A rejected write reports `fields`** in the envelope, naming what the API
   objected to. Read that instead of the prose message before retrying, and do
-  not retry unchanged.
+  not retry unchanged. A refused `invoice peppol send` reports `error_code` and
+  `details` the same way: `details.issues` is what to fix on the invoice,
+  `details.reason` why the company cannot send.
 - **Other limits:** 100 emails/hour (`invoice send`), 4 MB attachments,
   `--per-page` maxes at 200 for invoices but 100 for expenses.
 - **A create that times out may still have succeeded.** Pass

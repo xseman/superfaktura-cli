@@ -330,6 +330,12 @@ func Execute() {
 			if e.Hint != "" {
 				fmt.Fprintf(os.Stderr, "Hint:  %s\n", e.Hint)
 			}
+			if e.APICode != "" {
+				fmt.Fprintf(os.Stderr, "Code:  %s\n", e.APICode)
+			}
+			if len(e.Details) > 0 {
+				fmt.Fprintf(os.Stderr, "Data:  %s\n", e.Details)
+			}
 		} else {
 			_ = out.Err(e)
 		}
