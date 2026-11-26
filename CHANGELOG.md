@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/xseman/superfaktura-cli/compare/v0.2.0...v0.2.1) (2026-11-26)
+
+
+### Maintenance
+
+* **release:** publish the release after its assets are attached ([#11](https://github.com/xseman/superfaktura-cli/issues/11)) ([a220049](https://github.com/xseman/superfaktura-cli/commit/a22004995333d7b9963b3a704be67914859e4c23))
+
 ## [0.2.0](https://github.com/xseman/superfaktura-cli/compare/v0.1.0...v0.2.0) (2026-11-11)
 
 
